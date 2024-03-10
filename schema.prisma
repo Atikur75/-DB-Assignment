@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model product_category{
+
+  id            Int         @id                 @default(autoincrement())
+
+  name          String      @db.VarChar(50)
+  desc          String      @db.Text
+
+  product       product[]
+
+  created_at    DateTime    @default(now())     @db.Timestamp(0)
+  modified_at   DateTime    @default(now())     @db.Timestamp(0) @updatedAt
+  deleted_at    DateTime    @default(now())     @db.Timestamp(0)
+
+
+}
+
+model product{
+
+  id            Int         @id                 @default(autoincrement())
+
+  name          String      @db.VarChar(50)
+  desc          String      @db.Text
+  SKU           String      @db.VarChar(50)
+  price         Decimal
+
+  category_id   Int
+  inventory_id  Int         @unique
+  discount_id   Int
+  product_category          product_category    @relation(fields: [category_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  product_inventory         product_inventory   @relation(fields: [inventory_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  discount                  discount            @relation(fields: [discount_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  created_at    DateTime    @default(now())     @db.Timestamp(0)
+  modified_at   DateTime    @default(now())     @db.Timestamp(0) @updatedAt
+  deleted_at    DateTime    @default(now())     @db.Timestamp(0)
+
+
+}
+
+model product_inventory{
+
+  id            Int         @id                 @default(autoincrement())
+
+  quantity      Int         @db.MediumInt
+
+  product       product?
+  
+  created_at    DateTime    @default(now())     @db.Timestamp(0)
+  modified_at   DateTime    @default(now())     @db.Timestamp(0) @updatedAt
+  deleted_at    DateTime    @default(now())     @db.Timestamp(0)
+
+
+}
+
+model discount{
+
+  id              Int         @id                 @default(autoincrement())
+
+  name            String      @db.VarChar(50)
+  desc            String      @db.Text
+  discount_price  Decimal
+  active          Boolean  
+
+  product         product[]   
+  
+  created_at      DateTime    @default(now())     @db.Timestamp(0)
+  modified_at     DateTime    @default(now())     @db.Timestamp(0) @updatedAt
+  deleted_at      DateTime    @default(now())     @db.Timestamp(0)
+
+
+}
